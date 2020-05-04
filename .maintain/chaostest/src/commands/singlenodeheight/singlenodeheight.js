@@ -7,7 +7,7 @@ class SingleNodeHeightCommand extends Command {
     const port = flags.port || 9933
     const url = flags.url || 'http://localhost'
     const wait = flags.wait || 600 * 1000
-    const namespace = 'substrate-chaosnet'
+    const namespace = flags.namespace || 'substrate-ci'
     const serviceName = 'substrate-service'
     const deployName = 'substrate-deployment'
     const k8s = require('../../k8s')
@@ -124,6 +124,7 @@ SingleNodeHeightCommand.flags = {
   url: flags.string({char: 'u', description: 'connect url'}),
   wait: flags.string({char: 'w', description: 'wait time in miliseconds to halt'}),
   height: flags.string({char: 'h', description: 'desired height to test'}),
+  namespace: flags.string({char: 'n', description: 'desired namespace to deploy to'}),
 }
 
 module.exports = SingleNodeHeightCommand

@@ -497,6 +497,8 @@ chaos-test-singlenodeheight:
     PRODUCT:                       substrate
     DOCKERFILE:                    $PRODUCT.Dockerfile
     CONTAINER_IMAGE:               paritypr/$PRODUCT
+    KEEP_NAMESPACE:                1
+    NAMESPACE:                     substrate-ci
   environment:
     name:                          parity-chaosnet
   image:                           parity/chaostools:latest

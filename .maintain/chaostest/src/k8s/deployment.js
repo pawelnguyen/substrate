@@ -114,7 +114,10 @@ const getDeploymentStatus = async (deploymentName, namespace) => {
     function getAvailability(item) {
         return item.type === 'Available';
     }
-    return status.conditions.find(getAvailability)
+    if (status && status.conditions) {
+        return status.conditions.find(getAvailability)
+    }
+    return undefined
 }
 
 const deleteService = async (serviceName, namespace) => {

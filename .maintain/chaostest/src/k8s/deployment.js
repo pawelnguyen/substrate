@@ -128,6 +128,9 @@ const deleteDeployment = async (deploymentName, namespace) => {
 
 const deleteNameSpace = async (namespace) => {
     console.log('Taking down NameSpace...')
+    if (process.env.KEEP_NAMESPACE) {
+        return
+    }
     return k8sCoreApi.deleteNamespace(namespace)
 }
 

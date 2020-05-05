@@ -24,6 +24,7 @@ class SingleNodeHeightCommand extends Command {
         // await k8s.createService(port, namespace, serviceName)
         console.log('Starting local server')
         const pods = await k8s.getNameSpacedPods(namespace)
+        console.log(pods)
         const podName = pods[0].metadata.name
         await k8s.startForwardServer(namespace, podName, port, jsonRpcTest)
         // deployment setup finished, start doing jsonRpc calls

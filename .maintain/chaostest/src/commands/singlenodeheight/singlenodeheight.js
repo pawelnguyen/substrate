@@ -35,7 +35,8 @@ class SingleNodeHeightCommand extends Command {
         if (Date.now() < now + wait) {
           try {
             const condition = await k8s.getDeploymentStatus(deployName, namespace)
-            if (condition.status === 'True') {
+            console.log('current deployment condition: ' + condition)
+            if (condition && condition.status === 'True') {
               console.log('Deployment finished and ready to call chain api')
               setTimeout(startForwardServer, 1000) // 5sec is a reasonable time for substrate node to start producing blocks,will throw error if not
             } else {

@@ -111,7 +111,6 @@ const createDeployment = async (image, namespace, deploymentName) => {
 const getDeploymentStatus = async (deploymentName, namespace) => {
     const response = await k8sAppApi.readNamespacedDeploymentStatus(deploymentName, namespace)
     const status = response.response.body.status
-    console.log(response)
     function getAvailability(item) {
         return item.type === 'Available';
     }

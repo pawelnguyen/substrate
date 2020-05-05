@@ -3,13 +3,13 @@ const {Command, flags} = require('@oclif/command')
 class SingleNodeHeightCommand extends Command {
   async run() {
     const {flags} = this.parse(SingleNodeHeightCommand)
-    const imageTag = flags.image || 'parity/substrate:2.0.0-31c633c47'
+    const imageTag = flags.image || 'parity/substrate:latest'
     const port = flags.port || 9933
     const url = flags.url || 'http://localhost'
     const wait = flags.wait || 600 * 1000
     const namespace = flags.namespace || 'substrate-ci'
     const serviceName = 'substrate-service'
-    const deployName = 'substrate-deployment'
+    const deployName = 'substrate-deployment' + process.env.CI_COMMIT_SHORT_SHA
     const k8s = require('../../k8s')
     const jsonRpc = require('../../utils/json-rpc')
 
@@ -22,13 +22,9 @@ class SingleNodeHeightCommand extends Command {
         await k8s.createDeployment(imageTag, namespace, deployName)
         // console.log('Creating service...')
         // await k8s.createService(port, namespace, serviceName)
-        console.log('Starting local server')
-        const pods = await k8s.getNameSpacedPods(namespace)
-        console.log(pods)
-        const podName = pods[0].metadata.name
-        await k8s.startForwardServer(namespace, podName, port, jsonRpcTest)
+
         // deployment setup finished, start doing jsonRpc calls
-        // jsonRpcTest()
+        jsonRpcTest()
       } catch (error) {
         await caughtErrorAndExit(error)
       }
@@ -41,7 +37,7 @@ class SingleNodeHeightCommand extends Command {
             const condition = await k8s.getDeploymentStatus(deployName, namespace)
             if (condition.status === 'True') {
               console.log('Deployment finished and ready to call chain api')
-              setTimeout(startJsonRpcCall, 5000) // 5sec is a reasonable time for substrate node to start producing blocks,will throw error if not
+              setTimeout(startForwardServer, 1000) // 5sec is a reasonable time for substrate node to start producing blocks,will throw error if not
             } else {
               setTimeout(getdeploymentStatus, 2000) // polling k8s server to check for deployment status. condition: 'Available' = true is desired
             }
@@ -54,6 +50,13 @@ class SingleNodeHeightCommand extends Command {
           process.exit('Test time out')
         }
       }
+      async function startForwardServer() {
+        const pods = await k8s.getNameSpacedPods(namespace)
+        console.log(pods)
+        const podName = pods[0].metadata.name
+        await k8s.startForwardServer(namespace, podName, port, startJsonRpcCall)
+      }
+
       async function startJsonRpcCall() {
         if (Date.now() < now + wait) {
           try {

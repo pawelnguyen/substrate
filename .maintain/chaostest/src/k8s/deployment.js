@@ -60,6 +60,7 @@ const createService = async (port, namespace, serviceName) => {
 }
 
 const createDeployment = async (image, namespace, deploymentName) => {
+    const label = 'substrate-node' + process.env.CI_COMMIT_SHORT_SHA
     const deployment = {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
@@ -67,23 +68,23 @@ const createDeployment = async (image, namespace, deploymentName) => {
             name: deploymentName,
         },
         labels: {
-            app: 'substrate-node',
+            app: label,
         },
         spec: {
             selector: {
                 matchLabels: {
-                    app: 'substrate-node',
+                    app: label,
                 },
             },
             template: {
                 metadata: {
                     labels: {
-                        app: 'substrate-node',
+                        app: label,
                     },
                 },
                 spec: {
                     containers: [{
-                        name: 'substrate-node',
+                        name: label,
                         image: image,
                         ports: [{containerPort: 9933}],
                         args: ['--dev', '--rpc-external', '--ws-external'],
@@ -128,7 +129,7 @@ const deleteDeployment = async (deploymentName, namespace) => {
 
 const deleteNameSpace = async (namespace) => {
     console.log('Taking down NameSpace...')
-    if (process.env.KEEP_NAMESPACE) {
+    if (process.env.KEEP_NAMESPACE !== 0) {
         return
     }
     return k8sCoreApi.deleteNamespace(namespace)
